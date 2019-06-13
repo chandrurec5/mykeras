@@ -915,10 +915,6 @@ class ConvLSTM2D(ConvRNN2D):
 
     def call(self, inputs, mask=None, training=None, initial_state=None):
 	print("hi")
-        return super(ConvLSTM2D, self).call(inputs,
-                                            mask=mask,
-                                            training=training,
-                                            initial_state=initial_state)
 
     @property
     def filters(self):
