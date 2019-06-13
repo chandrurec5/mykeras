@@ -272,9 +272,57 @@ class ConvRNN2D(RNN):
             return [initial_state]
 
     def __call__(self, inputs, initial_state=None, constants=None, **kwargs):
-	print("Hi")
-	
-	
+        inputs, initial_state, constants = _standardize_args(
+            inputs, initial_state, constants, self._num_constants)
+
+        if initial_state is None and constants is None:
+            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
+
+        # If any of `initial_state` or `constants` are specified and are Keras
+        # tensors, then add them to the inputs and temporarily modify the
+        # input_spec to include them.
+
+        additional_inputs = []
+        additional_specs = []
+        if initial_state is not None:
+            kwargs['initial_state'] = initial_state
+            additional_inputs += initial_state
+            self.state_spec = []
+            for state in initial_state:
+                try:
+                    shape = K.int_shape(state)
+                # Fix for Theano
+                except TypeError:
+                    shape = tuple(None for _ in range(K.ndim(state)))
+                self.state_spec.append(InputSpec(shape=shape))
+
+            additional_specs += self.state_spec
+        if constants is not None:
+            kwargs['constants'] = constants
+            additional_inputs += constants
+            self.constants_spec = [InputSpec(shape=K.int_shape(constant))
+                                   for constant in constants]
+            self._num_constants = len(constants)
+            additional_specs += self.constants_spec
+        # at this point additional_inputs cannot be empty
+        for tensor in additional_inputs:
+            if K.is_keras_tensor(tensor) != K.is_keras_tensor(additional_inputs[0]):
+                raise ValueError('The initial state or constants of an RNN'
+                                 ' layer cannot be specified with a mix of'
+                                 ' Keras tensors and non-Keras tensors')
+
+        if K.is_keras_tensor(additional_inputs[0]):
+            # Compute the full input spec, including state and constants
+            full_input = [inputs] + additional_inputs
+            full_input_spec = self.input_spec + additional_specs
+            # Perform the call with temporarily replaced input_spec
+            original_input_spec = self.input_spec
+            self.input_spec = full_input_spec
+            output = super(ConvRNN2D, self).__call__(full_input, **kwargs)
+            self.input_spec = original_input_spec
+            return output
+        else:
+            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
 
     def call(self,
              inputs,
@@ -914,7 +962,10 @@ class ConvLSTM2D(ConvRNN2D):
         self.activity_regularizer = regularizers.get(activity_regularizer)
 
     def call(self, inputs, mask=None, training=None, initial_state=None):
-	print("hi")
+        return super(ConvLSTM2D, self).call(inputs,
+                                            mask=mask,
+                                            training=training,
+                                            initial_state=initial_state)
 
     @property
     def filters(self):
