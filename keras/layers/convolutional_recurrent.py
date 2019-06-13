@@ -272,7 +272,7 @@ class ConvRNN2D(RNN):
             return [initial_state]
 
     def __call__(self, inputs, initial_state=None, constants=None, **kwargs):
-        #inputs, initial_state, constants = _standardize_args(inputs, initial_state, constants, self._num_constants)
+        inputs, initial_state, constants = _standardize_args(inputs, initial_state, constants, self._num_constants)
 
         if initial_state is None and constants is None:
             return super(ConvRNN2D, self).__call__(inputs, **kwargs)
@@ -309,8 +309,8 @@ class ConvRNN2D(RNN):
                 raise ValueError('The initial state or constants of an RNN'
                                  ' layer cannot be specified with a mix of'
                                  ' Keras tensors and non-Keras tensors')
-
-        if K.is_keras_tensor(additional_inputs[0]):
+	if False and K.is_keras_tensor(additional_inputs[0]):
+#        if K.is_keras_tensor(additional_inputs[0]):
             # Compute the full input spec, including state and constants
             full_input = [inputs] + additional_inputs
             full_input_spec = self.input_spec + additional_specs
