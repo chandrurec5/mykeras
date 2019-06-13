@@ -318,7 +318,6 @@ class ConvRNN2D(RNN):
             # Perform the call with temporarily replaced input_spec
             original_input_spec = self.input_spec
             self.input_spec = full_input_spec
-#            output = super(ConvRNN2D, self).__call__(full_input, **kwargs)
             self.input_spec = original_input_spec
             return output
         else:
