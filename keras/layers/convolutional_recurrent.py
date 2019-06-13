@@ -275,8 +275,8 @@ class ConvRNN2D(RNN):
 	
 #        inputs, initial_state, constants = _standardize_args(inputs, initial_state, constants, self._num_constants)
 	print("Hi")
-        if initial_state is None and constants is None:
-            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
+#        if initial_state is None and constants is None:
+#            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
 
         # If any of `initial_state` or `constants` are specified and are Keras
         # tensors, then add them to the inputs and temporarily modify the
