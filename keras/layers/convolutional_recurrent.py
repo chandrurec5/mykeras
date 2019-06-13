@@ -323,7 +323,7 @@ class ConvRNN2D(RNN):
             self.input_spec = original_input_spec
             return output
         else:
-            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
+#            return super(ConvRNN2D, self).__call__(inputs, **kwargs)
 
     def call(self,
              inputs,
